@@ -4,13 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/df-mc/dragonfly/server/block/cube"
-	"github.com/df-mc/dragonfly/server/event"
-	"github.com/df-mc/dragonfly/server/internal/sliceutil"
-	"github.com/df-mc/dragonfly/server/world/chunk"
-	"github.com/df-mc/goleveldb/leveldb"
-	"github.com/go-gl/mathgl/mgl64"
-	"github.com/google/uuid"
 	"iter"
 	"maps"
 	"math/rand/v2"
@@ -18,6 +11,14 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/df-mc/dragonfly/server/block/cube"
+	"github.com/df-mc/dragonfly/server/event"
+	"github.com/df-mc/dragonfly/server/internal/sliceutil"
+	"github.com/df-mc/dragonfly/server/world/chunk"
+	"github.com/df-mc/goleveldb/leveldb"
+	"github.com/go-gl/mathgl/mgl64"
+	"github.com/google/uuid"
 )
 
 // World implements a Minecraft world. It manages all aspects of what players
@@ -1112,12 +1113,12 @@ func (w *World) chunk(pos ChunkPos) *Column {
 		return c
 	}
 	c, err := w.loadChunk(pos)
-	chunk.LightArea([]*chunk.Chunk{c.Chunk}, int(pos[0]), int(pos[1])).Fill()
+	//chunk.LightArea([]*chunk.Chunk{c.Chunk}, int(pos[0]), int(pos[1])).Fill()
 	if err != nil {
 		w.conf.Log.Error("load chunk: "+err.Error(), "X", pos[0], "Z", pos[1])
 		return c
 	}
-	w.calculateLight(pos)
+	//w.calculateLight(pos)
 	return c
 }
 
@@ -1190,7 +1191,7 @@ func (w *World) autoSave() {
 		save = time.NewTicker(w.conf.SaveInterval)
 		defer save.Stop()
 	}
-	closeUnused := time.NewTicker(time.Minute * 2)
+	closeUnused := time.NewTicker(time.Second * 5)
 	defer closeUnused.Stop()
 
 	for {
