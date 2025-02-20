@@ -1,9 +1,10 @@
 package world
 
 import (
+	"time"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/go-gl/mathgl/mgl64"
-	"time"
 )
 
 // weather implements weather related methods for World. World embeds this
@@ -24,7 +25,8 @@ func (w weather) StartWeatherCycle() {
 // is returned if the temperature in the Biome at that position is sufficiently
 // low, if it is raining and if it's above the top-most obstructing block.
 func (w weather) snowingAt(pos cube.Pos) bool {
-	if w.w == nil || !w.w.Dimension().WeatherCycle() {
+	return false
+	/* if w.w == nil || !w.w.Dimension().WeatherCycle() {
 		return false
 	}
 	if b := w.w.biome(pos); b.Rainfall() == 0 || w.w.temperature(pos) > 0.15 {
@@ -33,7 +35,7 @@ func (w weather) snowingAt(pos cube.Pos) bool {
 	w.w.set.Lock()
 	raining := w.w.set.Raining
 	w.w.set.Unlock()
-	return raining && w.w.highestObstructingBlock(pos[0], pos[2]) < pos[1]
+	return raining && w.w.highestObstructingBlock(pos[0], pos[2]) < pos[1] */
 }
 
 // rainingAt checks if it is raining at a specific cube.Pos in the World. True
@@ -41,7 +43,8 @@ func (w weather) snowingAt(pos cube.Pos) bool {
 // for it not to be snow and if the block is above the top-most obstructing
 // block.
 func (w weather) rainingAt(pos cube.Pos) bool {
-	if w.w == nil || !w.w.Dimension().WeatherCycle() {
+	return false
+	/* if w.w == nil || !w.w.Dimension().WeatherCycle() {
 		return false
 	}
 	if b := w.w.biome(pos); b.Rainfall() == 0 || w.w.temperature(pos) <= 0.15 {
@@ -50,7 +53,7 @@ func (w weather) rainingAt(pos cube.Pos) bool {
 	w.w.set.Lock()
 	a := w.w.set.Raining
 	w.w.set.Unlock()
-	return a && w.w.highestObstructingBlock(pos[0], pos[2]) < pos[1]
+	return a && w.w.highestObstructingBlock(pos[0], pos[2]) < pos[1] */
 }
 
 // thunderingAt checks if it is thundering at a specific cube.Pos in the World.
@@ -74,7 +77,7 @@ func (w weather) StartRaining(dur time.Duration) {
 
 // StopRaining makes it stop raining in the World.
 func (w weather) StopRaining() {
-	w.w.set.Lock()
+	/* w.w.set.Lock()
 	defer w.w.set.Unlock()
 
 	if w.w.set.Raining {
@@ -83,7 +86,7 @@ func (w weather) StopRaining() {
 			// Also reset thunder if it was previously thundering.
 			w.setThunder(false, time.Second*(time.Duration(w.w.r.IntN(8400)+600)))
 		}
-	}
+	} */
 }
 
 // StartThundering makes it thunder in the World. The time.Duration passed will
@@ -91,20 +94,20 @@ func (w weather) StopRaining() {
 // if it wasn't already raining. In this case the rain will, like the thunder,
 // last for the time.Duration passed.
 func (w weather) StartThundering(dur time.Duration) {
-	w.w.set.Lock()
+	/* w.w.set.Lock()
 	defer w.w.set.Unlock()
 
 	w.setThunder(true, dur)
-	w.setRaining(true, dur)
+	w.setRaining(true, dur) */
 }
 
 // StopThundering makes it stop thundering in the current world.
 func (w weather) StopThundering() {
-	w.w.set.Lock()
+	/* w.w.set.Lock()
 	defer w.w.set.Unlock()
 	if w.w.set.Thundering && w.w.set.Raining {
 		w.setThunder(false, time.Second*(time.Duration(w.w.r.IntN(8400)+600)))
-	}
+	} */
 }
 
 // advanceWeather advances the weather counters of the World. Rain and thunder

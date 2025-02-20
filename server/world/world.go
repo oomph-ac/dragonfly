@@ -1045,12 +1045,12 @@ func (w *World) addWorldViewer(l *Loader) {
 	w.viewers[l] = l.viewer
 	w.viewerMu.Unlock()
 
-	l.viewer.ViewTime(w.Time())
+	/* l.viewer.ViewTime(w.Time())
 	w.set.Lock()
 	raining, thundering := w.set.Raining, w.set.Raining && w.set.Thundering
 	w.set.Unlock()
 	l.viewer.ViewWeather(raining, thundering)
-	l.viewer.ViewWorldSpawn(w.Spawn())
+	l.viewer.ViewWorldSpawn(w.Spawn()) */
 }
 
 // addViewer adds a viewer to the World at a given position. Any events that

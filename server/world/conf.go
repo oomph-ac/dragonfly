@@ -97,6 +97,7 @@ func (conf Config) New() *World {
 		set:              s,
 	}
 	w.weather = weather{w: w}
+	w.weather.StopWeatherCycle()
 	var h Handler = NopHandler{}
 	w.handler.Store(&h)
 
