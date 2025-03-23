@@ -5,10 +5,7 @@ import (
 	"github.com/df-mc/dragonfly/server/internal/nbtconv"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/world"
-	"github.com/df-mc/dragonfly/server/world/sound"
 	"github.com/go-gl/mathgl/mgl64"
-	"math/rand/v2"
-	"time"
 )
 
 // Furnace is a utility block used for the smelting of blocks and items.
@@ -34,7 +31,7 @@ func NewFurnace(face cube.Direction) Furnace {
 
 // Tick is called to check if the furnace should update and start or stop smelting.
 func (f Furnace) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
-	if f.Lit && rand.Float64() <= 0.016 { // Every three or so seconds.
+	/* if f.Lit && rand.Float64() <= 0.016 { // Every three or so seconds.
 		tx.PlaySound(pos.Vec3Centre(), sound.FurnaceCrackle{})
 	}
 	if lit := f.smelter.tickSmelting(time.Second*10, time.Millisecond*100, f.Lit, func(item.SmeltInfo) bool {
@@ -42,7 +39,7 @@ func (f Furnace) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
 	}); f.Lit != lit {
 		f.Lit = lit
 		tx.SetBlock(pos, f, nil)
-	}
+	} */
 }
 
 // EncodeItem ...

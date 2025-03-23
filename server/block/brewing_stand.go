@@ -1,13 +1,14 @@
 package block
 
 import (
+	"time"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/block/model"
 	"github.com/df-mc/dragonfly/server/internal/nbtconv"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/go-gl/mathgl/mgl64"
-	"time"
 )
 
 // BrewingStand is a block used for brewing potions, splash potions, and lingering potions. It also serves as a cleric's
@@ -43,7 +44,7 @@ func (b BrewingStand) SideClosed(cube.Pos, cube.Pos, *world.Tx) bool {
 // Tick is called to check if the brewing stand should update and start or stop brewing.
 func (b BrewingStand) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
 	// Get each item in the brewing stand. We don't need to validate errors here since we know the bounds of the stand.
-	left, _ := b.inventory.Item(1)
+	/* left, _ := b.inventory.Item(1)
 	middle, _ := b.inventory.Item(2)
 	right, _ := b.inventory.Item(3)
 
@@ -55,7 +56,7 @@ func (b BrewingStand) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
 	}
 
 	// Tick brewing.
-	b.tickBrewing("brewing_stand", pos, tx)
+	b.tickBrewing("brewing_stand", pos, tx) */
 }
 
 // Activate ...

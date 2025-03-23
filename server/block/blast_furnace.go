@@ -5,10 +5,7 @@ import (
 	"github.com/df-mc/dragonfly/server/internal/nbtconv"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/world"
-	"github.com/df-mc/dragonfly/server/world/sound"
 	"github.com/go-gl/mathgl/mgl64"
-	"math/rand/v2"
-	"time"
 )
 
 // BlastFurnace is a block that smelts ores, raw metals, iron and gold armor and tools, similar to a furnace, but at
@@ -35,7 +32,7 @@ func NewBlastFurnace(face cube.Direction) BlastFurnace {
 
 // Tick is called to check if the blast furnace should update and start or stop smelting.
 func (b BlastFurnace) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
-	if b.Lit && rand.Float64() <= 0.016 { // Every three or so seconds.
+	/* if b.Lit && rand.Float64() <= 0.016 { // Every three or so seconds.
 		tx.PlaySound(pos.Vec3Centre(), sound.BlastFurnaceCrackle{})
 	}
 	if lit := b.smelter.tickSmelting(time.Second*5, time.Millisecond*200, b.Lit, func(i item.SmeltInfo) bool {
@@ -43,7 +40,7 @@ func (b BlastFurnace) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
 	}); b.Lit != lit {
 		b.Lit = lit
 		tx.SetBlock(pos, b, nil)
-	}
+	} */
 }
 
 // EncodeItem ...

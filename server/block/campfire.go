@@ -1,6 +1,9 @@
 package block
 
 import (
+	"strconv"
+	"time"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/block/model"
 	"github.com/df-mc/dragonfly/server/internal/nbtconv"
@@ -8,9 +11,6 @@ import (
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/df-mc/dragonfly/server/world/sound"
 	"github.com/go-gl/mathgl/mgl64"
-	"math/rand/v2"
-	"strconv"
-	"time"
 )
 
 // Campfire is a block that can be used to cook food, pacify bees, act as a spread-proof light source, smoke signal or
@@ -169,7 +169,7 @@ func (c Campfire) UseOnBlock(pos cube.Pos, face cube.Face, _ mgl64.Vec3, tx *wor
 
 // Tick is called to cook the items within the campfire.
 func (c Campfire) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
-	if c.Extinguished {
+	/* if c.Extinguished {
 		// Extinguished, do nothing.
 		return
 	}
@@ -196,7 +196,7 @@ func (c Campfire) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
 	}
 	if updated {
 		tx.SetBlock(pos, c, nil)
-	}
+	} */
 }
 
 // NeighbourUpdateTick ...

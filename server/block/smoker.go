@@ -5,10 +5,7 @@ import (
 	"github.com/df-mc/dragonfly/server/internal/nbtconv"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/world"
-	"github.com/df-mc/dragonfly/server/world/sound"
 	"github.com/go-gl/mathgl/mgl64"
-	"math/rand/v2"
-	"time"
 )
 
 // Smoker is a type of furnace that cooks food items, similar to a furnace, but twice as fast. It also serves as a
@@ -34,7 +31,7 @@ func NewSmoker(face cube.Direction) Smoker {
 }
 
 // Tick is called to check if the smoker should update and start or stop smelting.
-func (s Smoker) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
+/* func (s Smoker) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
 	if s.Lit && rand.Float64() <= 0.016 { // Every three or so seconds.
 		tx.PlaySound(pos.Vec3Centre(), sound.SmokerCrackle{})
 	}
@@ -44,7 +41,7 @@ func (s Smoker) Tick(_ int64, pos cube.Pos, tx *world.Tx) {
 		s.Lit = lit
 		tx.SetBlock(pos, s, nil)
 	}
-}
+} */
 
 // EncodeItem ...
 func (s Smoker) EncodeItem() (name string, meta int16) {

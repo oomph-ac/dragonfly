@@ -36,7 +36,7 @@ func (t ticker) tickLoop(w *World) {
 // tick performs a tick on the World and updates the time, weather, blocks and
 // entities that require updates.
 func (t ticker) tick(tx *Tx) {
-	viewers, loaders := tx.World().allViewers()
+	viewers, _ := tx.World().allViewers()
 	w := tx.World()
 
 	w.set.Lock()
@@ -79,7 +79,7 @@ func (t ticker) tick(tx *Tx) {
 
 	//t.tickEntities(tx, tick)
 	w.scheduledUpdates.tick(tx, tick)
-	t.tickBlocksRandomly(tx, loaders, tick)
+	//t.tickBlocksRandomly(tx, loaders, tick)
 	t.performNeighbourUpdates(tx)
 }
 
@@ -105,7 +105,7 @@ func (t ticker) performNeighbourUpdates(tx *Tx) {
 // tickBlocksRandomly executes random block ticks in each sub chunk in the world that has at least one viewer
 // registered from the viewers passed.
 func (t ticker) tickBlocksRandomly(tx *Tx, loaders []*Loader, tick int64) {
-	var (
+	/* var (
 		r             = int32(tx.World().tickRange())
 		g             randUint4
 		blockEntities []cube.Pos
@@ -158,7 +158,7 @@ func (t ticker) tickBlocksRandomly(tx *Tx, loaders []*Loader, tick int64) {
 		}
 	}
 
-	for _, pos := range randomBlocks {
+	/* for _, pos := range randomBlocks {
 		if rb, ok := tx.Block(pos).(RandomTicker); ok {
 			rb.RandomTick(pos, tx, tx.World().r)
 		}
@@ -167,7 +167,7 @@ func (t ticker) tickBlocksRandomly(tx *Tx, loaders []*Loader, tick int64) {
 		if tb, ok := tx.Block(pos).(TickerBlock); ok {
 			tb.Tick(tick, pos, tx)
 		}
-	}
+	} */
 }
 
 // anyWithinDistance checks if any of the ChunkPos loaded are within the distance r of the ChunkPos pos.
