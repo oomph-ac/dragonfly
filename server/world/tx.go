@@ -1,12 +1,13 @@
 package world
 
 import (
-	"github.com/df-mc/dragonfly/server/block/cube"
-	"github.com/go-gl/mathgl/mgl64"
 	"iter"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/df-mc/dragonfly/server/block/cube"
+	"github.com/go-gl/mathgl/mgl64"
 )
 
 // Tx represents a synchronised transaction performed on a World. Most
@@ -183,7 +184,8 @@ func (tx *Tx) PlaySound(pos mgl64.Vec3, s Sound) {
 // loaded. AddEntity panics if the EntityHandle is already in a world.
 // AddEntity returns the Entity created by the EntityHandle.
 func (tx *Tx) AddEntity(e *EntityHandle) Entity {
-	return tx.World().addEntity(tx, e)
+	// return tx.World().addEntity(tx, e)
+	return nil
 }
 
 // RemoveEntity removes an Entity from the World that is currently present in
