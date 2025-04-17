@@ -285,27 +285,27 @@ func newScheduledTickQueue(tick int64) *scheduledTickQueue {
 func (queue *scheduledTickQueue) tick(tx *Tx, tick int64) {
 	queue.currentTick = tick
 
-	w := tx.World()
+	/* w := tx.World()
 	for _, t := range queue.ticks {
 		if t.t > tick {
 			continue
 		}
 		b := tx.Block(t.pos)
-		if ticker, ok := b.(ScheduledTicker); ok && BlockHash(b) == t.bhash {
-			ticker.ScheduledTick(t.pos, tx, w.r)
+		/* if ticker, ok := b.(ScheduledTicker); ok && BlockHash(b) == t.bhash {
+			//ticker.ScheduledTick(t.pos, tx, w.r)
 		} else if liquid, ok := tx.World().additionalLiquid(t.pos); ok && BlockHash(liquid) == t.bhash {
 			if ticker, ok := liquid.(ScheduledTicker); ok {
-				ticker.ScheduledTick(t.pos, tx, w.r)
+				//ticker.ScheduledTick(t.pos, tx, w.r)
 			}
 		}
-	}
+	} */
 
 	// Clear scheduled ticks that were processed from the queue.
 	queue.ticks = slices.DeleteFunc(queue.ticks, func(t scheduledTick) bool {
-		return t.t <= tick
+		return true
 	})
 	maps.DeleteFunc(queue.furthestTicks, func(index scheduledTickIndex, t int64) bool {
-		return t <= tick
+		return true
 	})
 }
 

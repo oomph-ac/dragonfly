@@ -3,13 +3,14 @@ package block
 //lint:file-ignore ST1022 Exported variables in this package have compiler directives. These variables are not otherwise exposed to users.
 
 import (
+	"math/rand/v2"
+	"time"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/item/enchantment"
 	"github.com/df-mc/dragonfly/server/world"
-	"math/rand/v2"
-	"time"
 )
 
 // Fire is a non-solid block that can spread to nearby flammable blocks.
@@ -82,6 +83,8 @@ func rainingAround(pos cube.Pos, tx *world.Tx) bool {
 
 // tick ...
 func (f Fire) tick(pos cube.Pos, tx *world.Tx, r *rand.Rand) {
+	return
+
 	if f.Type == SoulFire() {
 		return
 	}
