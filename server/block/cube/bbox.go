@@ -88,20 +88,22 @@ func (box BBox) Extend(vec mgl64.Vec3) BBox {
 }
 
 // ExtendTowards extends the bounding box by x in a given direction.
-func (box BBox) ExtendTowards(f Face, x float64) BBox {
+func (box BBox) ExtendTowards(f Face, dist float64) BBox {
 	switch f {
 	case FaceDown:
-		box.max[1] -= x
+		//box.max[1] -= x
+		box.min[1] -= dist
 	case FaceUp:
-		box.min[1] += x
+		//box.min[1] += x
+		box.max[1] += dist
 	case FaceNorth:
-		box.min[2] -= x
+		box.min[2] -= dist
 	case FaceSouth:
-		box.max[2] += x
+		box.max[2] += dist
 	case FaceWest:
-		box.min[0] -= x
+		box.min[0] -= dist
 	case FaceEast:
-		box.max[0] += x
+		box.max[0] += dist
 	}
 	return box
 }
