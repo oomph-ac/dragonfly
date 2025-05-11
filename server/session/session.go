@@ -4,6 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
+	"net"
+	"sync"
+	"sync/atomic"
+	"time"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/cmd"
 	"github.com/df-mc/dragonfly/server/item/inventory"
@@ -19,12 +26,6 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/login"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"io"
-	"log/slog"
-	"net"
-	"sync"
-	"sync/atomic"
-	"time"
 )
 
 // Session handles incoming packets from connections and sends outgoing packets by providing a thin layer
@@ -36,6 +37,7 @@ type Session struct {
 	ent      *world.EntityHandle
 	conn     Conn
 	handlers map[uint32]packetHandler
+	packets  chan packet.Packet
 
 	currentScoreboard atomic.Pointer[string]
 	currentLines      atomic.Pointer[[]string]
@@ -152,6 +154,7 @@ func (conf Config) New(conn Conn) *Session {
 		openChunkTransactions:  make([]map[uint64]struct{}, 0, 8),
 		closeBackground:        make(chan struct{}),
 		handlers:               map[uint32]packetHandler{},
+		packets:                make(chan packet.Packet, 256),
 		entityRuntimeIDs:       map[*world.EntityHandle]uint64{},
 		entities:               map[uint64]*world.EntityHandle{},
 		hiddenEntities:         map[uuid.UUID]struct{}{},
@@ -173,11 +176,22 @@ func (conf Config) New(conn Conn) *Session {
 	s.currentLines.Store(&scoreboardLines)
 
 	s.registerHandlers()
+	s.sendBiomes()
 	groups, items := creativeContent()
 	s.writePacket(&packet.CreativeContent{Groups: groups, Items: items})
 	s.sendRecipes()
 	s.sendArmourTrimData()
 	s.SendSpeed(0.1)
+	go func() {
+		for {
+			select {
+			case <-s.closeBackground:
+				return
+			case pk := <-s.packets:
+				_ = conn.WritePacket(pk)
+			}
+		}
+	}()
 	return s
 }
 
@@ -492,7 +506,6 @@ func (s *Session) registerHandlers() {
 		packet.IDSetPlayerInventoryOptions: nil,
 		packet.IDSubChunkRequest:           &SubChunkRequestHandler{},
 		packet.IDText:                      &TextHandler{},
-		packet.IDTickSync:                  nil,
 		packet.IDServerBoundLoadingScreen:  &ServerBoundLoadingScreenHandler{},
 		packet.IDServerBoundDiagnostics:    &ServerBoundDiagnosticsHandler{},
 	}
@@ -503,7 +516,10 @@ func (s *Session) writePacket(pk packet.Packet) {
 	if s == Nop {
 		return
 	}
-	_ = s.conn.WritePacket(pk)
+	select {
+	case s.packets <- pk:
+	case <-s.closeBackground:
+	}
 }
 
 // actorIdentifier represents the structure of an actor identifier sent over the network.
