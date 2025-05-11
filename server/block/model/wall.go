@@ -5,7 +5,6 @@ import (
 	"github.com/df-mc/dragonfly/server/world"
 )
 
-// Wall is a model used by all wall types.
 type Wall struct {
 	// NorthConnection is the height of the connection for the north direction.
 	NorthConnection float64
@@ -19,26 +18,33 @@ type Wall struct {
 	Post bool
 }
 
-// BBox ...
 func (w Wall) BBox(cube.Pos, world.BlockSource) []cube.BBox {
-	postHeight := 0.8125
-	if w.Post {
-		postHeight = 1
+	var (
+		north, south = w.NorthConnection > 0, w.SouthConnection > 0
+		west, east   = w.WestConnection > 0, w.EastConnection > 0
+
+		inset = 0.25
+		box   = cube.Box(0, 0, 0, 1, 1.5, 1)
+	)
+
+	if !w.Post && ((north && south && !west && !east) || (!north && !south && west && east)) {
+		inset = 0.3125
 	}
-	boxes := []cube.BBox{cube.Box(0.25, 0, 0.25, 0.75, postHeight, 0.75)}
-	if w.NorthConnection > 0 {
-		boxes = append(boxes, cube.Box(0.25, 0, 0.75, 0.75, w.SouthConnection, 1))
+
+	if !north {
+		box = box.ExtendTowards(cube.FaceNorth, -inset)
 	}
-	if w.EastConnection > 0 {
-		boxes = append(boxes, cube.Box(0, 0, 0.25, 0.25, w.WestConnection, 0.75))
+	if !south {
+		box = box.ExtendTowards(cube.FaceSouth, -inset)
 	}
-	if w.SouthConnection > 0 {
-		boxes = append(boxes, cube.Box(0.25, 0, 0, 0.75, w.NorthConnection, 0.25))
+	if !west {
+		box = box.ExtendTowards(cube.FaceWest, -inset)
 	}
-	if w.WestConnection > 0 {
-		boxes = append(boxes, cube.Box(0.75, 0, 0.25, 1, w.EastConnection, 0.75))
+	if !east {
+		box = box.ExtendTowards(cube.FaceEast, -inset)
 	}
-	return boxes
+
+	return []cube.BBox{box}
 }
 
 // FaceSolid returns true if the face is in the Y axis.

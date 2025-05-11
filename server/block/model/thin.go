@@ -11,26 +11,46 @@ type Thin struct{}
 
 // BBox returns a slice of physics.BBox that depends on the blocks surrounding the Thin block. Thin blocks can connect
 // to any other Thin block, wall or solid faces of other blocks.
-func (t Thin) BBox(pos cube.Pos, s world.BlockSource) []cube.BBox {
-	const offset = 0.4375
-
-	boxes := make([]cube.BBox, 0, 5)
-	mainBox := cube.Box(offset, 0, offset, 1-offset, 1, 1-offset)
-
-	for _, f := range cube.HorizontalFaces() {
-		pos := pos.Side(f)
-		block := s.Block(pos)
-
-		_, thin := block.Model().(Thin)
-		_, wall := block.Model().(Wall)
-		if thin || wall || block.Model().FaceSolid(pos, f.Opposite(), s) {
-			boxes = append(boxes, mainBox.ExtendTowards(f, offset))
+func (t Thin) BBox(pos cube.Pos, s world.BlockSource) (bbs []cube.BBox) {
+	const inset = float64(7.0 / 16.0)
+	connectWest, connectEast := t.checkConnection(pos, cube.FaceWest, s), t.checkConnection(pos, cube.FaceEast, s)
+	if connectWest || connectEast {
+		bb := cube.Box(0, 0, 0, 1, 1, 1).Stretch(cube.Z, -inset)
+		if !connectWest {
+			bb = bb.ExtendTowards(cube.FaceWest, -inset)
+		} else if !connectEast {
+			bb = bb.ExtendTowards(cube.FaceEast, -inset)
 		}
+		bbs = append(bbs, bb)
 	}
-	return append(boxes, mainBox)
+
+	connectNorth, connectSouth := t.checkConnection(pos, cube.FaceNorth, s), t.checkConnection(pos, cube.FaceSouth, s)
+	if connectNorth || connectSouth {
+		bb := cube.Box(0, 0, 0, 1, 1, 1).Stretch(cube.X, -inset)
+		if !connectNorth {
+			bb = bb.ExtendTowards(cube.FaceNorth, -inset)
+		} else if !connectSouth {
+			bb = bb.ExtendTowards(cube.FaceSouth, -inset)
+		}
+		bbs = append(bbs, bb)
+	}
+
+	// This will happen if there are no connections in any direction.
+	if len(bbs) == 0 {
+		bbs = append(bbs, cube.Box(0, 0, 0, 1, 1, 1).Stretch(cube.X, -inset).Stretch(cube.Z, -inset))
+	}
+	return
 }
 
 // FaceSolid returns true if the face passed is cube.FaceDown.
 func (t Thin) FaceSolid(_ cube.Pos, face cube.Face, _ world.BlockSource) bool {
 	return face == cube.FaceDown
+}
+
+func (t Thin) checkConnection(pos cube.Pos, face cube.Face, s world.BlockSource) bool {
+	sidePos := pos.Side(face)
+	sideBlock := s.Block(sidePos)
+	_, isThin := sideBlock.Model().(Thin)
+	_, isWall := sideBlock.Model().(Wall)
+	return isThin || isWall || sideBlock.Model().FaceSolid(sidePos, face, s)
 }

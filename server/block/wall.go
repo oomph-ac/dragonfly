@@ -2,13 +2,14 @@ package block
 
 import (
 	"fmt"
+	"math"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/block/model"
 	"github.com/df-mc/dragonfly/server/internal/sliceutil"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/go-gl/mathgl/mgl64"
-	"math"
 )
 
 // Wall is a block similar to fences that prevents players from jumping over and is thinner than the usual block. It is
