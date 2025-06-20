@@ -91,10 +91,8 @@ func (box BBox) Extend(vec mgl64.Vec3) BBox {
 func (box BBox) ExtendTowards(f Face, dist float64) BBox {
 	switch f {
 	case FaceDown:
-		//box.max[1] -= x
 		box.min[1] -= dist
 	case FaceUp:
-		//box.min[1] += x
 		box.max[1] += dist
 	case FaceNorth:
 		box.min[2] -= dist
