@@ -25,24 +25,22 @@ func (f Fence) BBox(pos cube.Pos, s world.BlockSource) []cube.BBox {
 	if connectWest || connectEast {
 		sideBox := cube.Box(0, 0, 0, 1, 1.5, 1).Stretch(cube.Z, -inset)
 		if connectWest {
-			sideBox = sideBox.ExtendTowards(cube.FaceEast, -inset)
+			boxes = append(boxes, sideBox.ExtendTowards(cube.FaceEast, -inset))
 		}
 		if connectEast {
-			sideBox = sideBox.ExtendTowards(cube.FaceWest, -inset)
+			boxes = append(boxes, sideBox.ExtendTowards(cube.FaceWest, -inset))
 		}
-		boxes = append(boxes, sideBox)
 	}
 
 	// Check if we have any connections on the Z axis (north/south)
 	if connectNorth || connectSouth {
 		sideBox := cube.Box(0, 0, 0, 1, 1.5, 1).Stretch(cube.X, -inset)
 		if connectNorth {
-			sideBox = sideBox.ExtendTowards(cube.FaceSouth, -inset)
+			boxes = append(boxes, sideBox.ExtendTowards(cube.FaceSouth, -inset))
 		}
 		if connectSouth {
-			sideBox = sideBox.ExtendTowards(cube.FaceNorth, -inset)
+			boxes = append(boxes, sideBox.ExtendTowards(cube.FaceNorth, -inset))
 		}
-		boxes = append(boxes, sideBox)
 	}
 
 	// If no connections, create a center post box
@@ -57,10 +55,10 @@ func (f Fence) FaceSolid(_ cube.Pos, face cube.Face, _ world.BlockSource) bool {
 	return face == cube.FaceDown || face == cube.FaceUp
 }
 
-func (f Fence) checkFenceConnection(pos cube.Pos, face cube.Face, s world.BlockSource) bool {
+func (f Fence) checkFenceConnection(pos cube.Pos, face cube.Face, src world.BlockSource) bool {
 	pos = pos.Side(face)
-	sideBlock := s.Block(pos)
-	if fence, ok := sideBlock.Model().(Fence); ok && fence.Wood == f.Wood || (sideBlock.Model().FaceSolid(pos, face, s)) {
+	sideBlock := src.Block(pos)
+	if fence, ok := sideBlock.Model().(Fence); ok && fence.Wood == f.Wood || (sideBlock.Model().FaceSolid(pos, face, src)) {
 		return true
 	} else if _, ok := sideBlock.Model().(FenceGate); ok {
 		return true
