@@ -81,6 +81,17 @@ func (storage *PalettedStorage) Set(x, y, z byte, v uint32) {
 	storage.setPaletteIndex(x&15, y&15, z&15, uint16(index))
 }
 
+// Clone creates a deep copy of the PalettedStorage.
+func (storage *PalettedStorage) Clone() *PalettedStorage {
+	if storage == nil {
+		return nil
+	}
+	newPallete := storage.palette.Clone()
+	newIndices := make([]uint32, len(storage.indices))
+	copy(newIndices, storage.indices)
+	return newPalettedStorage(newIndices, newPallete)
+}
+
 // Equal checks if two PalettedStorages are equal value wise. False is returned
 // if either of the storages are nil.
 func (storage *PalettedStorage) Equal(other *PalettedStorage) bool {

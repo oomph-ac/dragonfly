@@ -23,6 +23,18 @@ func newPalette(size paletteSize, values []uint32) *Palette {
 	return &Palette{size: size, values: values, last: math.MaxUint32}
 }
 
+// Clone creates a deep copy of the Palette.
+func (palette *Palette) Clone() *Palette {
+	newPalette := &Palette{
+		last:      palette.last,
+		lastIndex: palette.lastIndex,
+		size:      palette.size,
+		values:    make([]uint32, len(palette.values)),
+	}
+	copy(newPalette.values, palette.values)
+	return newPalette
+}
+
 // Len returns the amount of unique values in the Palette.
 func (palette *Palette) Len() int {
 	return len(palette.values)

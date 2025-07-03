@@ -9,6 +9,22 @@ type SubChunk struct {
 	skyLight   []uint8
 }
 
+// Clone creates a deep copy of the sub chunk.
+func (sub *SubChunk) Clone() *SubChunk {
+	newSub := &SubChunk{
+		air:        sub.air,
+		storages:   make([]*PalettedStorage, len(sub.storages)),
+		blockLight: make([]byte, len(sub.blockLight)),
+		skyLight:   make([]byte, len(sub.skyLight)),
+	}
+	copy(newSub.blockLight, sub.blockLight)
+	copy(newSub.skyLight, sub.skyLight)
+	for i, storage := range sub.storages {
+		newSub.storages[i] = storage.Clone()
+	}
+	return newSub
+}
+
 // Equals returns if the sub chunk passed is equal to the current one.
 func (sub *SubChunk) Equals(s *SubChunk) bool {
 	if s.air != sub.air || len(s.storages) != len(sub.storages) {
