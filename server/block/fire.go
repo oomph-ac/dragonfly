@@ -293,3 +293,4 @@ func (FireDamageSource) Fire() bool                { return true }
 func (FireDamageSource) AffectedByEnchantment(e item.EnchantmentType) bool {
 	return e == enchantment.FireProtection
 }
+func (FireDamageSource) IgnoreTotem() bool { return false }
