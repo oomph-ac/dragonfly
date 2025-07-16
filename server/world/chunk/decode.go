@@ -3,6 +3,7 @@ package chunk
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 )
 
@@ -17,14 +18,18 @@ func NetworkDecode(air uint32, data []byte, count int, r cube.Range) (*Chunk, er
 	var (
 		c   = New(air, r)
 		buf = bytes.NewBuffer(data)
-		err error
+		n   = uint8((r.Height() >> 4) + 1)
 	)
-	for i := 0; i < count; i++ {
+	for i := range count {
 		index := uint8(i)
-		c.sub[index], err = decodeSubChunk(buf, c, &index, NetworkEncoding)
+		sub, err := decodeSubChunk(buf, c, &index, NetworkEncoding)
 		if err != nil {
 			return nil, err
 		}
+		if index > n {
+			return nil, fmt.Errorf("sub chunk index %v is greater than max %v", index, n)
+		}
+		c.sub[index] = sub
 	}
 	var last *PalettedStorage
 	for i := 0; i < len(c.sub); i++ {
