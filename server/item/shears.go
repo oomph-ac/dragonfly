@@ -45,7 +45,7 @@ func (s Shears) HarvestLevel() int {
 
 // BaseMiningEfficiency ...
 func (s Shears) BaseMiningEfficiency(world.Block) float64 {
-	return 1.5
+	return 3.0
 }
 
 // DurabilityInfo ...
