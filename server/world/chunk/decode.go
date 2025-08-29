@@ -13,44 +13,64 @@ var StateToRuntimeID func(name string, properties map[string]any) (runtimeID uin
 // NetworkDecode decodes the network serialised data passed into a Chunk if successful. If not, the chunk
 // returned is nil and the error non-nil.
 // The sub chunk count passed must be that found in the LevelChunk packet.
+// NetworkDecode creates a new buffer and calls NetworkDecodeBuffer.
 // noinspection GoUnusedExportedFunction
 func NetworkDecode(air uint32, data []byte, count int, r cube.Range) (*Chunk, error) {
+	c, _, err := NetworkDecodeBuffer(air, bytes.NewBuffer(data), count, r)
+	return c, err
+}
+
+// NetworkDecodeBuffer decodes the network serialised data from buf passed into a Chunk if successful. If not, the chunk
+// returned is nil and the error non-nil.
+// The sub chunk count passed must be that found in the LevelChunk packet.
+// noinspection GoUnusedExportedFunction
+func NetworkDecodeBuffer(air uint32, buf *bytes.Buffer, count int, r cube.Range) (*Chunk, [][]byte, error) {
 	var (
-		c   = New(air, r)
-		buf = bytes.NewBuffer(data)
-		n   = uint8((r.Height() >> 4) + 1)
+		newChunk  = New(air, r)
+		maxIndex  = uint8((r.Height() >> 4) + 1)
+		subChunks = make([][]byte, 0, maxIndex)
 	)
 	for i := range count {
 		index := uint8(i)
-		sub, err := decodeSubChunk(buf, c, &index, NetworkEncoding)
+		// Snapshot the unread bytes before decoding to determine the bytes consumed by this sub-chunk.
+		before := buf.Bytes()
+
+		sub, err := decodeSubChunk(buf, newChunk, &index, NetworkEncoding)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		if index > n {
-			return nil, fmt.Errorf("sub chunk index %v is greater than max %v", index, n)
+		if index > maxIndex {
+			return nil, nil, fmt.Errorf("sub chunk index %v is greater than max %v", index, maxIndex)
 		}
-		c.sub[index] = sub
+		newChunk.sub[index] = sub
+
+		// Append the raw bytes that were consumed by decodeSubChunk, avoiding re-encoding overhead later.
+		consumed := len(before) - buf.Len()
+		if consumed < 0 {
+			return nil, nil, fmt.Errorf("negative sub-chunk consumption")
+		}
+		subChunks = append(subChunks, before[:consumed])
 	}
 	var last *PalettedStorage
-	for i := 0; i < len(c.sub); i++ {
+	for i := 0; i < len(newChunk.sub); i++ {
 		b, err := decodePalettedStorage(buf, NetworkEncoding, BiomePaletteEncoding)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		if b == nil {
 			// b == nil means this paletted storage had the flag pointing to the previous one. It basically means we should
 			// inherit whatever palette we decoded last.
 			if i == 0 {
 				// This should never happen and there is no way to handle this.
-				return nil, fmt.Errorf("first biome storage pointed to previous one")
+				return nil, nil, fmt.Errorf("first biome storage pointed to previous one")
 			}
 			b = last
 		} else {
 			last = b
 		}
-		c.biomes[i] = b
+		newChunk.biomes[i] = b
 	}
-	return c, nil
+	return newChunk, subChunks, nil
 }
 
 // DiskDecode decodes the data from a SerialisedData object into a chunk and returns it. If the data was
