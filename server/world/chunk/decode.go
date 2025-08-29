@@ -26,9 +26,9 @@ func NetworkDecode(air uint32, data []byte, count int, r cube.Range) (*Chunk, er
 // noinspection GoUnusedExportedFunction
 func NetworkDecodeBuffer(air uint32, buf *bytes.Buffer, count int, r cube.Range) (*Chunk, [][]byte, error) {
 	var (
-		newChunk  = New(air, r)
-		maxIndex  = uint8((r.Height() >> 4) + 1)
-		subChunks = make([][]byte, 0, maxIndex)
+		newChunk = New(air, r)
+		maxIndex = uint8((r.Height() >> 4) + 1)
+		blobs    = make([][]byte, 0, maxIndex)
 	)
 	for i := range count {
 		index := uint8(i)
@@ -49,8 +49,9 @@ func NetworkDecodeBuffer(air uint32, buf *bytes.Buffer, count int, r cube.Range)
 		if consumed < 0 {
 			return nil, nil, fmt.Errorf("negative sub-chunk consumption")
 		}
-		subChunks = append(subChunks, before[:consumed])
+		blobs = append(blobs, before[:consumed])
 	}
+	blobs = append(blobs, buf.Bytes())
 	var last *PalettedStorage
 	for i := 0; i < len(newChunk.sub); i++ {
 		b, err := decodePalettedStorage(buf, NetworkEncoding, BiomePaletteEncoding)
@@ -70,7 +71,7 @@ func NetworkDecodeBuffer(air uint32, buf *bytes.Buffer, count int, r cube.Range)
 		}
 		newChunk.biomes[i] = b
 	}
-	return newChunk, subChunks, nil
+	return newChunk, blobs, nil
 }
 
 // DiskDecode decodes the data from a SerialisedData object into a chunk and returns it. If the data was
