@@ -120,11 +120,11 @@ func (p DecoratedPot) Activate(pos cube.Pos, _ cube.Face, tx *world.Tx, u item.U
 
 // BreakInfo ...
 func (p DecoratedPot) BreakInfo() BreakInfo {
-	return newBreakInfo(0, alwaysHarvestable, nothingEffective, oneOf(DecoratedPot{Decorations: p.Decorations})).withBreakHandler(func(pos cube.Pos, tx *world.Tx, u item.User) {
+	return newBreakInfo(0, alwaysHarvestable, nothingEffective, oneOf(DecoratedPot{Decorations: p.Decorations})) /*.withBreakHandler(func(pos cube.Pos, tx *world.Tx, u item.User) {
 		if !p.Item.Empty() {
 			dropItem(tx, p.Item, pos.Vec3Centre())
 		}
-	})
+	})*/
 }
 
 // EncodeItem ...

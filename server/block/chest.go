@@ -186,7 +186,7 @@ func (c Chest) UseOnBlock(pos cube.Pos, face cube.Face, _ mgl64.Vec3, tx *world.
 
 // BreakInfo ...
 func (c Chest) BreakInfo() BreakInfo {
-	return newBreakInfo(2.5, alwaysHarvestable, axeEffective, oneOf(c)).withBreakHandler(func(pos cube.Pos, tx *world.Tx, u item.User) {
+	return newBreakInfo(2.5, alwaysHarvestable, axeEffective, oneOf(c)) /*.withBreakHandler(func(pos cube.Pos, tx *world.Tx, u item.User) {
 		if c.paired {
 			pairPos := c.pairPos(pos)
 			if _, pair, ok := c.unpair(tx, pos); ok {
@@ -198,7 +198,7 @@ func (c Chest) BreakInfo() BreakInfo {
 		for _, i := range c.Inventory(tx, pos).Clear() {
 			dropItem(tx, i, pos.Vec3Centre())
 		}
-	})
+	})*/
 }
 
 // FuelInfo ...

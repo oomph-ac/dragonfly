@@ -61,13 +61,13 @@ func (c Campfire) BreakInfo() BreakInfo {
 			return []item.Stack{item.NewStack(SoulSoil{}, 1)}
 		}
 		panic("should never happen")
-	}).withBreakHandler(func(pos cube.Pos, tx *world.Tx, u item.User) {
+	}) /*.withBreakHandler(func(pos cube.Pos, tx *world.Tx, u item.User) {
 		for _, v := range c.Items {
 			if !v.Item.Empty() {
 				dropItem(tx, v.Item, pos.Vec3Centre())
 			}
 		}
-	})
+	})*/
 }
 
 // LightEmissionLevel ...
