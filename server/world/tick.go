@@ -61,11 +61,12 @@ func (t ticker) tick(tx *Tx) {
 	}
 
 	tick := w.set.CurrentTick
+	//rain, thunder, tick, tim, cycle := w.set.Raining, w.set.Thundering && w.set.Raining, w.set.CurrentTick, int(w.set.Time), w.set.TimeCycle
 	w.set.Unlock()
 
 	/* if tick%20 == 0 {
 		for _, viewer := range viewers {
-			if w.Dimension().TimeCycle() {
+			if w.Dimension().TimeCycle() && cycle {
 				viewer.ViewTime(tim)
 			}
 			if w.Dimension().WeatherCycle() {
