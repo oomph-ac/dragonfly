@@ -27,7 +27,7 @@ func NetworkDecode(air uint32, data []byte, count int, r cube.Range) (*Chunk, er
 func NetworkDecodeBuffer(air uint32, buf *bytes.Buffer, count int, r cube.Range) (*Chunk, [][]byte, error) {
 	var (
 		newChunk = New(air, r)
-		maxIndex = uint8((r.Height() >> 4) + 1)
+		maxIndex = uint8((r.Height() >> 4))
 		blobs    = make([][]byte, 0, maxIndex)
 	)
 	for i := range count {
