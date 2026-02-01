@@ -40,7 +40,10 @@ func NetworkDecodeBuffer(air uint32, buf *bytes.Buffer, count int, r cube.Range)
 			return nil, nil, err
 		}
 		if index > maxIndex {
-			return nil, nil, fmt.Errorf("sub chunk index %v is greater than max %v", index, maxIndex)
+			// TODO: This is a work-around for some JE -> BE converters where there are more sub chunks than expected. It is to be determined if this
+			// will have any side-effects. For now, we will just ignore the sub chunks and not insert them. We still have to decode all of them out of the buffer, however.
+			//return nil, nil, fmt.Errorf("sub chunk index %v is greater than max %v", index, maxIndex)
+			continue
 		}
 		newChunk.sub[index] = sub
 
