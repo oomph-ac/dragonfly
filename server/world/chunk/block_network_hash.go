@@ -1,5 +1,7 @@
 package chunk
 
+import "slices"
+
 // ConvertBlockNetworkHashesToRuntimeIDs converts block palette values from network hashes to registry runtime IDs.
 // Unknown hashes are preserved unchanged.
 func (chunk *Chunk) ConvertBlockNetworkHashesToRuntimeIDs() {
@@ -50,9 +52,11 @@ func EncodeSubChunkWithBlockNetworkHashes(c *Chunk, index int) []byte {
 	if c == nil || index < 0 || index >= len(c.sub) {
 		return nil
 	}
-	networkChunk := c.Clone()
+	networkChunk := *c
+	networkChunk.sub = slices.Clone(c.sub)
+	networkChunk.sub[index] = c.sub[index].Clone()
 	networkChunk.sub[index].convertRuntimeIDsToBlockNetworkHashes(c.br)
-	return EncodeSubChunk(networkChunk, NetworkEncoding, index)
+	return EncodeSubChunk(&networkChunk, NetworkEncoding, index)
 }
 
 func (sub *SubChunk) convertRuntimeIDsToBlockNetworkHashes(br BlockRegistry) {
