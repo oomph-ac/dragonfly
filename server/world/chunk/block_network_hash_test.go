@@ -11,11 +11,15 @@ func TestChunkConvertsBlockNetworkHashesToRuntimeIDs(t *testing.T) {
 	registry := networkHashTestRegistry{air: 0, hashToRuntimeID: map[uint32]uint32{100: 1}}
 	c := New(registry, cube.Range{0, 15})
 	c.SetBlock(1, 2, 3, 0, 100)
+	c.SetBlock(4, 5, 6, 0, 999)
 
 	c.ConvertBlockNetworkHashesToRuntimeIDs()
 
 	if got := c.Block(1, 2, 3, 0); got != 1 {
 		t.Fatalf("block runtime ID = %d, want 1", got)
+	}
+	if got := c.Block(4, 5, 6, 0); got != 999 {
+		t.Fatalf("unmapped block ID = %d, want 999", got)
 	}
 }
 
@@ -23,6 +27,7 @@ func TestEncodeWithBlockNetworkHashesDoesNotMutateChunk(t *testing.T) {
 	registry := networkHashTestRegistry{air: 0, runtimeIDToHash: map[uint32]uint32{1: 100}}
 	c := New(registry, cube.Range{0, 15})
 	c.SetBlock(1, 2, 3, 0, 1)
+	c.SetBlock(4, 5, 6, 0, 999)
 
 	data := EncodeWithBlockNetworkHashes(c)
 	buf := bytes.NewBuffer(data.SubChunks[0])
@@ -34,8 +39,14 @@ func TestEncodeWithBlockNetworkHashesDoesNotMutateChunk(t *testing.T) {
 	if got := decoded.Block(1, 2, 3, 0); got != 100 {
 		t.Fatalf("encoded block ID = %d, want network hash 100", got)
 	}
+	if got := decoded.Block(4, 5, 6, 0); got != 999 {
+		t.Fatalf("encoded unmapped block ID = %d, want 999", got)
+	}
 	if got := c.Block(1, 2, 3, 0); got != 1 {
 		t.Fatalf("source block ID = %d after encoding, want 1", got)
+	}
+	if got := c.Block(4, 5, 6, 0); got != 999 {
+		t.Fatalf("source unmapped block ID = %d after encoding, want 999", got)
 	}
 }
 
@@ -43,6 +54,7 @@ func TestEncodeSubChunkWithBlockNetworkHashesDoesNotMutateChunk(t *testing.T) {
 	registry := networkHashTestRegistry{runtimeIDToHash: map[uint32]uint32{7: 70}}
 	c := New(registry, cube.Range{0, 15})
 	c.SetBlock(1, 1, 1, 0, 7)
+	c.SetBlock(2, 2, 2, 0, 999)
 
 	encoded := EncodeSubChunkWithBlockNetworkHashes(c, 0)
 	buf := bytes.NewBuffer(encoded)
@@ -54,8 +66,14 @@ func TestEncodeSubChunkWithBlockNetworkHashesDoesNotMutateChunk(t *testing.T) {
 	if got := decoded.Block(1, 1, 1, 0); got != 70 {
 		t.Fatalf("encoded block runtime ID = %d, want network hash 70", got)
 	}
+	if got := decoded.Block(2, 2, 2, 0); got != 999 {
+		t.Fatalf("encoded unmapped block runtime ID = %d, want 999", got)
+	}
 	if got := c.Block(1, 1, 1, 0); got != 7 {
 		t.Fatalf("source block runtime ID = %d, want 7", got)
+	}
+	if got := c.Block(2, 2, 2, 0); got != 999 {
+		t.Fatalf("source unmapped block runtime ID = %d, want 999", got)
 	}
 }
 
