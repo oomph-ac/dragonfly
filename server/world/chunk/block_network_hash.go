@@ -44,6 +44,17 @@ func EncodeWithBlockNetworkHashes(c *Chunk) SerialisedData {
 	return Encode(networkChunk, NetworkEncoding)
 }
 
+// EncodeSubChunkWithBlockNetworkHashes encodes one sub-chunk for the network with block palette runtime IDs converted
+// to network hashes. The chunk is cloned before conversion, so the source chunk remains unchanged.
+func EncodeSubChunkWithBlockNetworkHashes(c *Chunk, index int) []byte {
+	if c == nil || index < 0 || index >= len(c.sub) {
+		return nil
+	}
+	networkChunk := c.Clone()
+	networkChunk.sub[index].convertRuntimeIDsToBlockNetworkHashes(c.br)
+	return EncodeSubChunk(networkChunk, NetworkEncoding, index)
+}
+
 func (sub *SubChunk) convertRuntimeIDsToBlockNetworkHashes(br BlockRegistry) {
 	if sub == nil || br == nil {
 		return

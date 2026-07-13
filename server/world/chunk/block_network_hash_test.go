@@ -39,6 +39,26 @@ func TestEncodeWithBlockNetworkHashesDoesNotMutateChunk(t *testing.T) {
 	}
 }
 
+func TestEncodeSubChunkWithBlockNetworkHashesDoesNotMutateChunk(t *testing.T) {
+	registry := networkHashTestRegistry{runtimeIDToHash: map[uint32]uint32{7: 70}}
+	c := New(registry, cube.Range{0, 15})
+	c.SetBlock(1, 1, 1, 0, 7)
+
+	encoded := EncodeSubChunkWithBlockNetworkHashes(c, 0)
+	buf := bytes.NewBuffer(encoded)
+	index := byte(0)
+	decoded, err := decodeSubChunk(buf, c, &index, NetworkEncoding)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := decoded.Block(1, 1, 1, 0); got != 70 {
+		t.Fatalf("encoded block runtime ID = %d, want network hash 70", got)
+	}
+	if got := c.Block(1, 1, 1, 0); got != 7 {
+		t.Fatalf("source block runtime ID = %d, want 7", got)
+	}
+}
+
 type networkHashTestRegistry struct {
 	air             uint32
 	hashToRuntimeID map[uint32]uint32
