@@ -24,27 +24,28 @@ func NetworkDecode(br BlockRegistry, data []byte, count int, r cube.Range) (*Chu
 // The sub chunk count passed must be that found in the LevelChunk packet.
 // noinspection GoUnusedExportedFunction
 func NetworkDecodeBuffer(br BlockRegistry, buf *bytes.Buffer, count int, r cube.Range) (*Chunk, [][]byte, error) {
-	var (
-		newChunk = New(br, r)
-		maxIndex = uint8(r.Height() >> 4)
-		blobs    = make([][]byte, 0, int(maxIndex)+1)
-	)
+	c := New(br, r)
+	// The declared count may exceed the number of sub-chunks supported by the
+	// dimension's vertical range, so validate it before indexing c.sub.
+	if count < 0 || count > len(c.sub) {
+		return nil, nil, fmt.Errorf("invalid sub-chunk count %d: chunk range has %d sub-chunks", count, len(c.sub))
+	}
+	blobs := make([][]byte, 0, len(c.sub)+1)
 	for i := range count {
 		index := uint8(i)
 		// Snapshot the unread bytes before decoding to determine the bytes consumed by this sub-chunk.
 		before := buf.Bytes()
 
-		sub, err := decodeSubChunk(buf, newChunk, &index, NetworkEncoding)
+		sub, err := decodeSubChunk(buf, c, &index, NetworkEncoding)
 		if err != nil {
 			return nil, nil, err
 		}
-		if index > maxIndex {
-			// TODO: This is a work-around for some JE -> BE converters where there are more sub chunks than expected. It is to be determined if this
-			// will have any side-effects. For now, we will just ignore the sub chunks and not insert them. We still have to decode all of them out of the buffer, however.
-			// return nil, nil, fmt.Errorf("sub chunk index %v is greater than max %v", index, maxIndex)
-			continue
+		// Version 9 sub-chunks replace index with an absolute Y from the payload.
+		// Validate that translated index before using it to access the chunk.
+		if int(index) >= len(c.sub) {
+			return nil, nil, fmt.Errorf("invalid sub-chunk index %d: chunk range has %d sub-chunks", index, len(c.sub))
 		}
-		newChunk.sub[index] = sub
+		c.sub[index] = sub
 
 		// Append the raw bytes that were consumed by decodeSubChunk, avoiding re-encoding overhead later.
 		consumed := len(before) - buf.Len()
@@ -55,7 +56,7 @@ func NetworkDecodeBuffer(br BlockRegistry, buf *bytes.Buffer, count int, r cube.
 	}
 	blobs = append(blobs, buf.Bytes())
 	var last *PalettedStorage
-	for i := 0; i < len(newChunk.sub); i++ {
+	for i := 0; i < len(c.sub); i++ {
 		b, err := decodePalettedStorage(buf, NetworkEncoding, BiomePaletteEncoding)
 		if err != nil {
 			return nil, nil, err
@@ -71,9 +72,9 @@ func NetworkDecodeBuffer(br BlockRegistry, buf *bytes.Buffer, count int, r cube.
 		} else {
 			last = b
 		}
-		newChunk.biomes[i] = b
+		c.biomes[i] = b
 	}
-	return newChunk, blobs, nil
+	return c, blobs, nil
 }
 
 // DiskDecode decodes the data from a SerialisedData object into a chunk and returns it. If the data was invalid,
