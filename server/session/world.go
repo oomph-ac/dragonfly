@@ -81,10 +81,12 @@ func (s *Session) ViewEntity(e world.Entity) {
 	case Controllable:
 		_, actualPlayer := sessions.Lookup(v.UUID())
 		if !actualPlayer {
-			s.writePacket(&packet.PlayerList{ActionType: packet.PlayerListActionAdd, Entries: []protocol.PlayerListEntry{{
+			s.writePacket(&packet.PlayerList{Entries: []protocol.PlayerListEntry{{
+				ActionType:     protocol.PlayerListActionAdd,
 				UUID:           v.UUID(),
 				EntityUniqueID: int64(runtimeID),
 				Username:       v.Name(),
+				BuildPlatform:  int32(protocol.DeviceDedicated),
 				Skin:           skinToProtocol(v.Skin()),
 			}}})
 		}
@@ -108,8 +110,9 @@ func (s *Session) ViewEntity(e world.Entity) {
 			},
 		})
 		if !actualPlayer {
-			s.writePacket(&packet.PlayerList{ActionType: packet.PlayerListActionRemove, Entries: []protocol.PlayerListEntry{{
-				UUID: v.UUID(),
+			s.writePacket(&packet.PlayerList{Entries: []protocol.PlayerListEntry{{
+				ActionType: protocol.PlayerListActionRemove,
+				UUID:       v.UUID(),
 			}}})
 		} else {
 			s.ViewSkin(e)
@@ -275,6 +278,9 @@ func (s *Session) ViewEntityTeleport(e world.Entity, position mgl64.Vec3) {
 			Yaw:             float32(yaw),
 			HeadYaw:         float32(yaw),
 			Mode:            packet.MoveModeTeleport,
+			TeleportData: protocol.Option(protocol.TeleportData{
+				TeleportCause: packet.TeleportCauseUnknown,
+			}),
 		})
 		return
 	}
@@ -888,6 +894,14 @@ func (s *Session) playSound(pos mgl64.Vec3, t world.Sound, disableRelative bool)
 		return
 	case sound.DecoratedPotInsertFailed:
 		pk.SoundType = packet.SoundEventDecoratedPotInsertFail
+	case sound.Custom:
+		s.writePacket(&packet.PlaySound{
+			SoundName: so.Name,
+			Position:  vec64To32(pos),
+			Volume:    float32(so.Volume),
+			Pitch:     float32(so.Pitch),
+		})
+		return
 	case sound.LightningExplode:
 		s.writePacket(&packet.PlaySound{
 			SoundName: "ambient.weather.lightning.impact",
